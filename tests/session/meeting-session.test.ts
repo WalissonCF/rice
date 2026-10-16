@@ -602,6 +602,28 @@ test('o identificador de pessoas chega ao pipeline; se falhar, grava mesmo assim
   await bad.session.stop();
 });
 
+test('quem falava na chamada (Discord) dá nome ao trecho de "Outros": vira Pessoa N com o nome no meta', async () => {
+  let t = 0;
+  const { session, pipeline } = await setup({ now: () => new Date(2026, 9, 8, 14, 0, 0, t) });
+  const live: Array<{ speaker?: number; speakerName?: string }> = [];
+  session.on('segment', ({ segment }: { segment: { speaker?: number; speakerName?: string } }) => live.push(segment));
+  const dir = await session.start({ title: 'Discord', trigger: 'mic', app: 'Discord' });
+  await vi.waitFor(() => expect(pipeline.listenerCount('segment')).toBeGreaterThan(0));
+  t = 1000;
+  session.markSpeaker('Ana', true);
+  t = 4000;
+  session.markSpeaker('Ana', false);
+  pipeline.emit('segment', { id: 'a', source: 'Outros', startMs: 1200, endMs: 3800, text: 'oi, tudo bem?' });
+  pipeline.emit('segment', { id: 'b', source: 'Outros', startMs: 6000, endMs: 8000, text: 'alguém fora do Discord' });
+  await session.stop();
+  const transcript = await readMeetingText(dir, 'transcript');
+  expect(transcript).toContain('**[14:00:01] Pessoa 1:** oi, tudo bem?');
+  expect(transcript).toContain('**[14:00:06] Outros:** alguém fora do Discord');
+  expect((await readMeta(dir)).speakers).toEqual({ '1': 'Ana' });
+  expect(live[0]).toMatchObject({ speaker: 1, speakerName: 'Ana' });
+  expect(live[1]!.speaker).toBeUndefined();
+});
+
 // ---- R-25/R-26: disco cheio e pasta indisponível ----
 const enospc = () => Object.assign(new Error('ENOSPC'), { code: 'ENOSPC' });
 

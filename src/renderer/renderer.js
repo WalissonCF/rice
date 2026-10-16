@@ -1834,6 +1834,7 @@ function appendSegment(segment) {
       partialRows.delete(who);
     }
   }
+  if (segment.speaker && segment.speakerName && !speakerNames[segment.speaker]) speakerNames = { ...speakerNames, [segment.speaker]: segment.speakerName }; // nome da chamada (Discord): o main já gravou no meta
   const at = new Date(openStartedAt.getTime() + segment.startMs);
   const who = segment.source === 'Outros' && segment.speaker ? `Pessoa ${segment.speaker}` : segment.source;
   const line = `**[${clock(at)}] ${who}:** ${segment.text.trim()}`;

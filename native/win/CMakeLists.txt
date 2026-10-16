@@ -40,7 +40,7 @@ add_library(rice_audio_core STATIC
   audio/simulated_platform.cpp audio/output_classify.cpp audio/mic_device.cpp)
 target_link_libraries(rice_audio_core PUBLIC rice_common Threads::Threads)
 
-add_library(rice_detector_core STATIC detector/app_matcher.cpp detector/mic_watcher.cpp detector/mic_monitor.cpp detector/window_list.cpp)
+add_library(rice_detector_core STATIC detector/app_matcher.cpp detector/mic_watcher.cpp detector/mic_monitor.cpp detector/window_list.cpp detector/discord_voice.cpp)
 target_link_libraries(rice_detector_core PUBLIC rice_common Threads::Threads)
 
 # --- AEC (opcional) -----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ set(AUDIO_SOURCES audio/main.cpp)
 set(DETECTOR_SOURCES detector/main.cpp)
 if(WIN32)
   list(APPEND AUDIO_SOURCES audio/win/windows_platform.cpp)
-  list(APPEND DETECTOR_SOURCES detector/win/registry_mic.cpp detector/win/windows_list.cpp)
+  list(APPEND DETECTOR_SOURCES detector/win/registry_mic.cpp detector/win/windows_list.cpp detector/win/discord_uia.cpp)
 endif()
 
 add_executable(rice-audio ${AUDIO_SOURCES})
@@ -76,7 +76,7 @@ add_executable(rice-detector ${DETECTOR_SOURCES})
 target_link_libraries(rice-detector PRIVATE rice_detector_core)
 if(WIN32)
   target_link_libraries(rice-audio PRIVATE ole32 uuid propsys winmm)  # winmm: timeGetTime do WebRTC
-  target_link_libraries(rice-detector PRIVATE advapi32 user32 dwmapi)
+  target_link_libraries(rice-detector PRIVATE advapi32 user32 dwmapi ole32 oleaut32 uuid)
 endif()
 
 # --- testes -------------------------------------------------------------------------------------

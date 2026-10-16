@@ -331,6 +331,11 @@ const END_PROMPT_TIMEOUT_MS = 60_000;
 const pendingPrompts = new PromptTracker();
 /** Apps de reunião usando o microfone agora (fim de um deles com outro ativo não encerra a gravação). */
 const activeMeetingApps = new Set<string>();
+
+/** Windows: gravando uma chamada do Discord, o detector lê quem fala para dar nome aos trechos de "Outros". Fora disso, não lê nada. */
+function syncCallSpeakers(): void {
+  detector?.watchSpeakers(process.platform === 'win32' && session?.state === 'recording' && activeMeetingApps.has('Discord') ? 'Discord' : null);
+}
 // Referências fortes: o GC pode descartar a Notification e perder o clique.
 const liveNotifications = new Set<Notification>();
 
@@ -459,8 +464,10 @@ function setupDetector(): void {
     send('reminders:changed', null);
   });
   d.on('reminders-changed', () => send('reminders:changed', null));
+  d.on('speaker-active', ({ name, speaking }: { name: string; speaking: boolean }) => session?.markSpeaker(name, speaking));
   d.on('meeting-app-started', async ({ app: appName }: { app: string }) => {
     activeMeetingApps.add(appName);
+    syncCallSpeakers();
     const key = appName;
     if (!session || !shouldPromptStart({ state: session.state, pending: pendingPrompts, key })) return;
     pendingPrompts.add(key);
@@ -499,6 +506,7 @@ function setupDetector(): void {
   });
   d.on('meeting-app-ended', async ({ app: appName }: { app: string }) => {
     activeMeetingApps.delete(appName);
+    syncCallSpeakers();
     const s = session;
     const rec = s?.recording;
     if (!s || !rec || !s.currentDir) return;
@@ -942,6 +950,7 @@ function setupSession(runner: AiRunner): AsrService {
     }
   });
   s.on('state', updateTray);
+  s.on('state', syncCallSpeakers);
   s.on('state', (st: string) => { if (st === 'idle') { pendingPrompts.recordingEnded(); winUpdater.recordingEnded(); void maybeNotifyUpdate(); } }); // aviso de versão nova adiado pela gravação
   s.on('state', updateNub);
   s.on('pause', (e: { dir: string; paused: boolean }) => {

@@ -9,6 +9,8 @@ export type Segment = {
   text: string;
   /** "Pessoa N" do canal do sistema (identificação de participantes); ausente = só "Outros". */
   speaker?: number;
+  /** Nome de quem falava na chamada (Discord no Windows) para a `speaker`; só ao vivo, no arquivo o nome fica em `meta.speakers`. */
+  speakerName?: string;
   /** Identifica o trecho de áudio (o mesmo dos parciais ao vivo); não é gravado em disco. */
   segmentId?: string;
 };

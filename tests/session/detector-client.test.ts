@@ -176,3 +176,16 @@ test('listInputs repetido (com e sem resposta) não deixa ouvintes pendurados', 
   for (let i = 0; i < 5; i++) expect(await silent.listInputs(50)).toBeNull();
   expect(silent.listenerCount('inputs')).toBe(0);
 });
+
+test('speaker-active (Discord no Windows) vira evento com nome e estado; linhas sem nome são descartadas', async () => {
+  const { c, seen } = client([
+    { at: 10, line: { event: 'speaker-active', app: 'Discord', name: 'Ana', speaking: true } },
+    { at: 20, line: { event: 'speaker-active', app: 'Discord', name: '', speaking: true } },
+    { at: 30, line: { event: 'speaker-active', app: 'Discord', name: 'Ana', speaking: false } },
+    sentinel(40),
+  ]);
+  const speakers: unknown[] = [];
+  c.on('speaker-active', (p) => speakers.push(p));
+  await waitSentinel(seen);
+  expect(speakers).toEqual([{ app: 'Discord', name: 'Ana', speaking: true }, { app: 'Discord', name: 'Ana', speaking: false }]);
+});

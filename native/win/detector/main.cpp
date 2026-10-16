@@ -16,6 +16,7 @@
 #include "../common/events.hpp"
 #include "../common/json.hpp"
 #include "app_matcher.hpp"
+#include "discord_voice.hpp"
 #include "mic_monitor.hpp"
 #include "mic_watcher.hpp"
 #include "window_list.hpp"
@@ -102,6 +103,60 @@ json::Value listWindowsJson(const std::vector<WindowInfo>& windows, const Window
   return windowsToJson(filterWindows(windows, filter));
 }
 
+json::Value snapshotJson(const VoiceSnapshot& snapshot) {
+  json::Value members = json::Value::object();
+  for (const auto& [name, speaking] : snapshot.members) members.set(name, speaking);
+  json::Value f = json::Value::object();
+  f.set("self", snapshot.self).set("members", std::move(members));
+  return f;
+}
+
+/// `watch-speakers` / `stop-speakers`: lê o Discord a cada `interval` só enquanto o Rice pede (gravando uma chamada do Discord).
+class SpeakerPoller {
+ public:
+  SpeakerPoller(LineEmitter& out, std::chrono::milliseconds interval) : out_(out), interval_(interval) {}
+  ~SpeakerPoller() { stop(); }
+
+  void start() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (thread_.joinable()) return;
+    running_ = true;
+    thread_ = std::thread([this] { run(); });
+  }
+
+  void stop() {
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      if (!thread_.joinable()) return;
+      running_ = false;
+    }
+    wake_.notify_all();
+    thread_.join();
+  }
+
+ private:
+  void run() {
+    SpeakerWatcher watcher(out_);
+    std::unique_lock<std::mutex> lock(mutex_);
+    while (running_) {
+      lock.unlock();
+      auto tree = readDiscordTree();
+      watcher.tick(tree ? discordVoiceSnapshot(*tree) : VoiceSnapshot{});
+      lock.lock();
+      wake_.wait_for(lock, interval_, [this] { return !running_; });
+    }
+    lock.unlock();
+    watcher.tick(VoiceSnapshot{});  // parou: fecha quem ainda estava falando
+  }
+
+  LineEmitter& out_;
+  std::chrono::milliseconds interval_;
+  std::mutex mutex_;
+  std::condition_variable wake_;
+  bool running_ = false;
+  std::thread thread_;
+};
+
 json::Value accessFields() {
   json::Value f = json::Value::object();
   f.set("status", "unsupported");
@@ -136,6 +191,21 @@ int main(int argc, char** argv) {
     for (const auto& pid : allValuesAfter(args, "--pid")) filter.pids.push_back(std::strtoul(pid.c_str(), nullptr, 10));
     enableDpiAwareness();
     printLine(listWindowsJson(currentWindows(args), filter).dump());
+    return 0;
+  }
+  std::string treesText = valueAfter(args, "--simulate-speakers", found);
+  if (found) {
+    // Passos = árvores de UI Automation do Discord ({cls,name,children}); imprime os speaker-active gerados.
+    SpeakerWatcher watcher(out);
+    auto parsed = json::parse(treesText);
+    if (parsed && parsed->isArray()) {
+      for (const auto& tree : parsed->items()) watcher.tick(discordVoiceSnapshot(uiNodeFromJson(tree)));
+    }
+    return 0;
+  }
+  if (hasFlag(args, "--print-discord-voice")) {
+    auto tree = readDiscordTree();
+    printLine(tree ? snapshotJson(discordVoiceSnapshot(*tree)).dump() : "null");
     return 0;
   }
   std::string stepsText = valueAfter(args, "--simulate-mic", found);
@@ -195,6 +265,7 @@ int main(int argc, char** argv) {
     }
   });
 
+  SpeakerPoller speakers(out, std::chrono::milliseconds(250));
   std::string line;
   while (std::getline(std::cin, line)) {
     if (!line.empty() && line.back() == '\r') line.pop_back();
@@ -234,6 +305,11 @@ int main(int argc, char** argv) {
       }
       f.set("windows", listWindowsJson(currentWindows(args), filter));
       out.emit("windows-list", std::move(f));
+    } else if (name == "watch-speakers") {
+      // Pedido do Rice (só Windows): {"cmd":"watch-speakers","app":"Discord"}. Sem resposta; eventos speaker-active até stop-speakers.
+      if (command->body.getString("app") == "Discord") speakers.start();
+    } else if (name == "stop-speakers") {
+      speakers.stop();
     } else if (name == "request-calendar-access") {
       out.emit("calendar-access", accessFields());
     } else if (name == "list-reminders") {
@@ -250,6 +326,7 @@ int main(int argc, char** argv) {
     }
   }
   // EOF: o pai fechou o stdin. Todos os comandos são síncronos, então já foram respondidos.
+  speakers.stop();
   {
     std::lock_guard<std::mutex> lock(quitMutex);
     quit = true;

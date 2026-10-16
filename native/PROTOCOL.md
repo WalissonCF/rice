@@ -180,5 +180,13 @@ O detector Windows mantém os mesmos eventos e comandos. Diferenças deliberadas
   ignora status fora de `granted|denied|notDetermined`), `current-event` → `{"id":null}`, `events-list` e `reminders-list` vazios,
   `reminder-completed` → `ok:false`. Nunca há `upcoming-event`. `--simulate-upcoming` e `--simulate-reminders` não existem.
 - Pedido extra, só Windows (não existe no Swift; o Mac nunca o envia): `{"cmd":"list-windows","apps":["Zoom"],"exes":["chrome.exe"],"pids":[123]}` → `{"event":"windows-list","windows":[{id,owner,pid,exe,title,x,y,w,h,monitor,mx,my,mw,mh}]}` (janelas visíveis, da frente para trás). Também como `--list-windows [--app|--exe|--pid]`. Os eventos acima não mudam.
+- Quem fala no Discord, só Windows (o Mac nunca envia): `{"cmd":"watch-speakers","app":"Discord"}` começa a ler, a cada 250 ms, a árvore de
+  UI Automation da janela do Discord desktop; `{"cmd":"stop-speakers"}` (ou EOF) para. Nenhum dos dois tem resposta. Enquanto lê, emite
+  `{"event":"speaker-active","app":"Discord","name":"Ana","speaking":true|false}` a cada transição (fim antes de começo; ao parar ou sem
+  janela, um `speaking:false` para cada um que ainda falava). Fonte: na lista do canal de voz da barra lateral do servidor, o nome de quem fala
+  ganha a classe `usernameSpeaking__*` (as classes vêm com sufixo de hash: só o prefixo conta). A conta logada (painel `accountPopoutButtonWrapper__*`)
+  nunca é emitida: a voz dela é o mic. Só nomes; nada é gravado. `--simulate-speakers '<json>'` (array de árvores `{cls,name,children}`) imprime os
+  eventos gerados; `--print-discord-voice` imprime `{self, members:{nome: falando}}` da janela atual (diagnóstico).
+  Fixture: `tests/fixtures/protocol/discord-voice.json` (árvore real reduzida, nomes trocados).
 - `--fake-mic-steps '<json>' [--fake-mic-interval-ms N]` (só nas versões portáveis): o modo watch lê os snapshots do mic dessa lista
   (um por intervalo, padrão 2000 ms; o último se repete) em vez do registro. Para smoke tests.

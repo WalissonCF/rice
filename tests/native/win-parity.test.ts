@@ -42,7 +42,7 @@ beforeAll(async () => {
   detector = join(out, 'rice-detector');
   const core = ['echo_canceller', 'recorder', 'selftests', 'sinks', 'simulated_platform', 'output_classify', 'mic_device', 'main'].map((f) => `${WIN}/audio/${f}.cpp`);
   await run('c++', [...flags, ...common, ...core, '-o', audio], { maxBuffer: 64 * 1024 * 1024 });
-  const det = ['app_matcher', 'mic_watcher', 'mic_monitor', 'window_list', 'main'].map((f) => `${WIN}/detector/${f}.cpp`);
+  const det = ['app_matcher', 'mic_watcher', 'mic_monitor', 'window_list', 'discord_voice', 'main'].map((f) => `${WIN}/detector/${f}.cpp`);
   await run('c++', [...flags, ...common, ...det, '-o', detector], { maxBuffer: 64 * 1024 * 1024 });
 }, 300_000);
 

@@ -9,6 +9,7 @@ import { getLanguage, t, type UiLanguage } from '../i18n';
 import type { MeetingMeta, MeetingTrigger, RecordingSession, Segment, TranscriptionLanguage } from '../../shared/types';
 import type { AsrPipeline, AsrStatus, PartialSegment } from '../asr/pipeline';
 import type { SpeakerIdentifier } from '../asr/speaker-identifier';
+import { SpeakerLabels, SpeakerTimeline } from './call-speakers';
 import { recoverOrphanAudio } from './audio-recovery';
 import { createMeeting, formatSegmentLine, gapMarkerLine, MEETING_FILES, readMeta, updateMeta } from '../store/meeting-files';
 import { TranscriptSink, type SinkFs } from '../store/transcript-sink';
@@ -138,6 +139,9 @@ type Active = {
   captures: Set<AudioCapture>;
   /** A captura já foi parada: frames que ainda chegarem são descartados. */
   captureClosed: boolean;
+  /** Quem falou na chamada (Discord no Windows) e o número de "Pessoa N" de cada nome; só em memória. */
+  callSpeakers: SpeakerTimeline;
+  speakerLabels: SpeakerLabels;
 };
 
 const MAX_RESTARTS_WITHOUT_FRAMES = 3;
@@ -277,7 +281,7 @@ export class MeetingSession extends EventEmitter {
       }),
       audioGapFrom: null, suspendedAtMs: null, pausedAtMs: null, pausedAtWall: 0, pauseAlerted: false, watchdog: new SourceWatchdog(), lastSpeechAt: startedAt.getTime(), idlePromptAt: null, nextReminderAt: null, watchTimer: null, sourceGapFrom: {}, micRevoked: false, spaceTimer: null,
       offsetMs: 0, lastMs: 0, lastStatus: 'idle', restartsWithoutFrames: 0,
-      hasSegments: false, othersSpoke: false, incomplete: false, retrying: false, closing: false, sealed: false, restartTimer: null, writes: Promise.resolve(), captures: new Set(), captureClosed: false,
+      hasSegments: false, othersSpoke: false, incomplete: false, retrying: false, closing: false, sealed: false, restartTimer: null, writes: Promise.resolve(), captures: new Set(), captureClosed: false, callSpeakers: new SpeakerTimeline(), speakerLabels: new SpeakerLabels(),
     };
     this.active = active;
     this.emit('active', dir); // o 'recording' saiu antes de a reunião existir: quem leu o currentDir lá viu null
@@ -416,12 +420,15 @@ export class MeetingSession extends EventEmitter {
       void pipeline.finish().catch(() => {});
       return;
     }
-    pipeline.on('segment', (segment: Segment) => {
+    pipeline.on('segment', (raw: Segment) => {
       if (active.sealed) return;
       active.hasSegments = true;
-      if (segment.source === 'Outros') active.othersSpoke = true;
+      if (raw.source === 'Outros') active.othersSpoke = true;
       this.noteSpeech(active);
+      const { segment, named } = this.nameFromCall(active, raw);
       this.enqueue(active, async () => {
+        // nome dado pelo usuário vale mais; falha no meta não pode custar a linha da transcrição
+        if (named) await updateMeta(active.dir, (m) => (m.speakers?.[String(named.speaker)] ? m : { ...m, speakers: { ...m.speakers, [String(named.speaker)]: named.name } })).catch(() => {});
         await this.writeResumeMark(active);
         await active.sink.append(formatSegmentLine(active.startedAt, segment));
       });
@@ -437,6 +444,21 @@ export class MeetingSession extends EventEmitter {
     const pending = active.pending;
     active.pending = [];
     for (const frame of pending) this.push(active, frame);
+  }
+
+  /** Trecho de "Outros" que coincide com alguém falando na chamada vira a "Pessoa N" desse nome; `named` = nome novo para o meta. */
+  private nameFromCall(active: Active, segment: Segment): { segment: Segment; named?: { speaker: number; name: string } } {
+    if (segment.source !== 'Outros') return { segment };
+    const name = active.callSpeakers.whoSpoke(segment.startMs, segment.endMs);
+    const { speaker, fresh } = active.speakerLabels.label(name, segment.speaker);
+    if (!name || speaker === undefined) return { segment };
+    return { segment: { ...segment, speaker, speakerName: name }, ...(fresh ? { named: { speaker, name } } : {}) };
+  }
+
+  /** O detector viu `name` começar/parar de falar na chamada (Discord no Windows). */
+  markSpeaker(name: string, speaking: boolean): void {
+    const active = this.active;
+    if (active) active.callSpeakers.mark(name, speaking, this.now().getTime() - active.startedAt.getTime());
   }
 
   private push(active: Active, frame: AudioFrame): void {

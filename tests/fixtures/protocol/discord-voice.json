@@ -1,0 +1,1016 @@
+{
+ "generatedBy": "Árvore de UI Automation do Discord desktop (Windows, out/2026), reduzida e com nomes trocados; não vem do Swift (só o detector do Windows tem speaker-active)",
+ "simulateSpeakers": [
+  {
+   "input": [
+    {
+     "cls": "Chrome_WidgetWin_1",
+     "name": "#geral | Servidor - Discord",
+     "children": [
+      {
+       "name": "#geral | Servidor",
+       "children": [
+        {
+         "cls": "scroller__629e4 thin_d125d2",
+         "children": [
+          {
+           "cls": "containerDefault_c69b6d",
+           "name": "VozAbrir chatAnaBrunoEu",
+           "children": [
+            {
+             "cls": "link__2ea32",
+             "name": "Reuniao (canal de voz), Ana, Bruno, Eu"
+            },
+            {
+             "cls": "list_c3cd7d list__07f91 listDefault__07f91",
+             "children": [
+              {
+               "cls": "draggable__55bab",
+               "children": [
+                {
+                 "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+                 "children": [
+                  {
+                   "cls": "focusTarget__54e4b",
+                   "name": "Ana"
+                  },
+                  {
+                   "cls": "container__394db",
+                   "children": [
+                    {
+                     "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91",
+                     "children": [
+                      {
+                       "name": "Ana"
+                      }
+                     ]
+                    },
+                    {
+                     "cls": "chipletParent__394db",
+                     "children": [
+                      {
+                       "name": "Tag do servidor: ABC"
+                      }
+                     ]
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              },
+              {
+               "cls": "draggable__55bab",
+               "children": [
+                {
+                 "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+                 "children": [
+                  {
+                   "cls": "focusTarget__54e4b",
+                   "name": "Bruno, Silenciado(a)"
+                  },
+                  {
+                   "cls": "container__394db",
+                   "children": [
+                    {
+                     "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91",
+                     "children": [
+                      {
+                       "name": "Bruno"
+                      }
+                     ]
+                    },
+                    {
+                     "cls": "chipletParent__394db",
+                     "children": [
+                      {
+                       "name": "Tag do servidor: ABC"
+                      }
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "cls": "hiddenVisually_b18fe2",
+                   "children": [
+                    {
+                     "name": "Silenciado(a)"
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              },
+              {
+               "cls": "draggable__55bab",
+               "children": [
+                {
+                 "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+                 "children": [
+                  {
+                   "cls": "focusTarget__54e4b",
+                   "name": "Eu"
+                  },
+                  {
+                   "cls": "container__394db",
+                   "children": [
+                    {
+                     "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91",
+                     "children": [
+                      {
+                       "name": "Eu"
+                      }
+                     ]
+                    },
+                    {
+                     "cls": "chipletParent__394db",
+                     "children": [
+                      {
+                       "name": "Tag do servidor: ABC"
+                      }
+                     ]
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "cls": "container__37e49 containerRtcOpened__37e49",
+         "children": [
+          {
+           "cls": "accountPopoutButtonWrapper__37e49",
+           "children": [
+            {
+             "cls": "accountPopoutButton__37e49",
+             "name": "Gerenciar perfil e status"
+            },
+            {
+             "cls": "text-md/medium_cf4812 title_b6c092",
+             "children": [
+              {
+               "name": "Eu"
+              }
+             ]
+            },
+            {
+             "cls": "text-xs/medium_cf4812 subtext__339d0",
+             "children": [
+              {
+               "name": "eu_login"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "cls": "membersWrap_c8ffbb",
+         "name": "Lista de membros",
+         "children": [
+          {
+           "cls": "member__5d473 member_c8ffbb",
+           "name": "AnaEm voz (Reuniao)",
+           "children": [
+            {
+             "cls": "username__5d473",
+             "children": [
+              {
+               "name": "Ana"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "cls": "Chrome_WidgetWin_1",
+     "name": "#geral | Servidor - Discord",
+     "children": [
+      {
+       "name": "#geral | Servidor",
+       "children": [
+        {
+         "cls": "scroller__629e4 thin_d125d2",
+         "children": [
+          {
+           "cls": "containerDefault_c69b6d",
+           "name": "VozAbrir chatAnaBrunoEu",
+           "children": [
+            {
+             "cls": "link__2ea32",
+             "name": "Reuniao (canal de voz), Ana, Bruno, Eu"
+            },
+            {
+             "cls": "list_c3cd7d list__07f91 listDefault__07f91",
+             "children": [
+              {
+               "cls": "draggable__55bab",
+               "children": [
+                {
+                 "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+                 "children": [
+                  {
+                   "cls": "focusTarget__54e4b",
+                   "name": "Ana"
+                  },
+                  {
+                   "cls": "container__394db",
+                   "children": [
+                    {
+                     "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91 usernameSpeaking__07f91",
+                     "children": [
+                      {
+                       "name": "Ana"
+                      }
+                     ]
+                    },
+                    {
+                     "cls": "chipletParent__394db",
+                     "children": [
+                      {
+                       "name": "Tag do servidor: ABC"
+                      }
+                     ]
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              },
+              {
+               "cls": "draggable__55bab",
+               "children": [
+                {
+                 "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+                 "children": [
+                  {
+                   "cls": "focusTarget__54e4b",
+                   "name": "Bruno, Silenciado(a)"
+                  },
+                  {
+                   "cls": "container__394db",
+                   "children": [
+                    {
+                     "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91",
+                     "children": [
+                      {
+                       "name": "Bruno"
+                      }
+                     ]
+                    },
+                    {
+                     "cls": "chipletParent__394db",
+                     "children": [
+                      {
+                       "name": "Tag do servidor: ABC"
+                      }
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "cls": "hiddenVisually_b18fe2",
+                   "children": [
+                    {
+                     "name": "Silenciado(a)"
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              },
+              {
+               "cls": "draggable__55bab",
+               "children": [
+                {
+                 "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+                 "children": [
+                  {
+                   "cls": "focusTarget__54e4b",
+                   "name": "Eu"
+                  },
+                  {
+                   "cls": "container__394db",
+                   "children": [
+                    {
+                     "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91 usernameSpeaking__07f91",
+                     "children": [
+                      {
+                       "name": "Eu"
+                      }
+                     ]
+                    },
+                    {
+                     "cls": "chipletParent__394db",
+                     "children": [
+                      {
+                       "name": "Tag do servidor: ABC"
+                      }
+                     ]
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "cls": "container__37e49 containerRtcOpened__37e49",
+         "children": [
+          {
+           "cls": "accountPopoutButtonWrapper__37e49",
+           "children": [
+            {
+             "cls": "accountPopoutButton__37e49",
+             "name": "Gerenciar perfil e status"
+            },
+            {
+             "cls": "text-md/medium_cf4812 title_b6c092",
+             "children": [
+              {
+               "name": "Eu"
+              }
+             ]
+            },
+            {
+             "cls": "text-xs/medium_cf4812 subtext__339d0",
+             "children": [
+              {
+               "name": "eu_login"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "cls": "membersWrap_c8ffbb",
+         "name": "Lista de membros",
+         "children": [
+          {
+           "cls": "member__5d473 member_c8ffbb",
+           "name": "AnaEm voz (Reuniao)",
+           "children": [
+            {
+             "cls": "username__5d473",
+             "children": [
+              {
+               "name": "Ana"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "cls": "Chrome_WidgetWin_1",
+     "name": "#geral | Servidor - Discord",
+     "children": [
+      {
+       "name": "#geral | Servidor",
+       "children": [
+        {
+         "cls": "scroller__629e4 thin_d125d2",
+         "children": [
+          {
+           "cls": "containerDefault_c69b6d",
+           "name": "VozAbrir chatAnaBrunoEu",
+           "children": [
+            {
+             "cls": "link__2ea32",
+             "name": "Reuniao (canal de voz), Ana, Bruno, Eu"
+            },
+            {
+             "cls": "list_c3cd7d list__07f91 listDefault__07f91",
+             "children": [
+              {
+               "cls": "draggable__55bab",
+               "children": [
+                {
+                 "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+                 "children": [
+                  {
+                   "cls": "focusTarget__54e4b",
+                   "name": "Ana"
+                  },
+                  {
+                   "cls": "container__394db",
+                   "children": [
+                    {
+                     "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91 usernameSpeaking__07f91",
+                     "children": [
+                      {
+                       "name": "Ana"
+                      }
+                     ]
+                    },
+                    {
+                     "cls": "chipletParent__394db",
+                     "children": [
+                      {
+                       "name": "Tag do servidor: ABC"
+                      }
+                     ]
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              },
+              {
+               "cls": "draggable__55bab",
+               "children": [
+                {
+                 "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+                 "children": [
+                  {
+                   "cls": "focusTarget__54e4b",
+                   "name": "Bruno, Silenciado(a)"
+                  },
+                  {
+                   "cls": "container__394db",
+                   "children": [
+                    {
+                     "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91 usernameSpeaking__07f91",
+                     "children": [
+                      {
+                       "name": "Bruno"
+                      }
+                     ]
+                    },
+                    {
+                     "cls": "chipletParent__394db",
+                     "children": [
+                      {
+                       "name": "Tag do servidor: ABC"
+                      }
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "cls": "hiddenVisually_b18fe2",
+                   "children": [
+                    {
+                     "name": "Silenciado(a)"
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              },
+              {
+               "cls": "draggable__55bab",
+               "children": [
+                {
+                 "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+                 "children": [
+                  {
+                   "cls": "focusTarget__54e4b",
+                   "name": "Eu"
+                  },
+                  {
+                   "cls": "container__394db",
+                   "children": [
+                    {
+                     "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91",
+                     "children": [
+                      {
+                       "name": "Eu"
+                      }
+                     ]
+                    },
+                    {
+                     "cls": "chipletParent__394db",
+                     "children": [
+                      {
+                       "name": "Tag do servidor: ABC"
+                      }
+                     ]
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "cls": "container__37e49 containerRtcOpened__37e49",
+         "children": [
+          {
+           "cls": "accountPopoutButtonWrapper__37e49",
+           "children": [
+            {
+             "cls": "accountPopoutButton__37e49",
+             "name": "Gerenciar perfil e status"
+            },
+            {
+             "cls": "text-md/medium_cf4812 title_b6c092",
+             "children": [
+              {
+               "name": "Eu"
+              }
+             ]
+            },
+            {
+             "cls": "text-xs/medium_cf4812 subtext__339d0",
+             "children": [
+              {
+               "name": "eu_login"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "cls": "membersWrap_c8ffbb",
+         "name": "Lista de membros",
+         "children": [
+          {
+           "cls": "member__5d473 member_c8ffbb",
+           "name": "AnaEm voz (Reuniao)",
+           "children": [
+            {
+             "cls": "username__5d473",
+             "children": [
+              {
+               "name": "Ana"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "cls": "Chrome_WidgetWin_1",
+     "name": "#geral | Servidor - Discord",
+     "children": [
+      {
+       "name": "#geral | Servidor",
+       "children": [
+        {
+         "cls": "scroller__629e4 thin_d125d2",
+         "children": [
+          {
+           "cls": "containerDefault_c69b6d",
+           "name": "VozAbrir chatAnaBrunoEu",
+           "children": [
+            {
+             "cls": "link__2ea32",
+             "name": "Reuniao (canal de voz), Ana, Bruno, Eu"
+            },
+            {
+             "cls": "list_c3cd7d list__07f91 listDefault__07f91",
+             "children": [
+              {
+               "cls": "draggable__55bab",
+               "children": [
+                {
+                 "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+                 "children": [
+                  {
+                   "cls": "focusTarget__54e4b",
+                   "name": "Ana"
+                  },
+                  {
+                   "cls": "container__394db",
+                   "children": [
+                    {
+                     "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91",
+                     "children": [
+                      {
+                       "name": "Ana"
+                      }
+                     ]
+                    },
+                    {
+                     "cls": "chipletParent__394db",
+                     "children": [
+                      {
+                       "name": "Tag do servidor: ABC"
+                      }
+                     ]
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              },
+              {
+               "cls": "draggable__55bab",
+               "children": [
+                {
+                 "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+                 "children": [
+                  {
+                   "cls": "focusTarget__54e4b",
+                   "name": "Bruno, Silenciado(a)"
+                  },
+                  {
+                   "cls": "container__394db",
+                   "children": [
+                    {
+                     "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91 usernameSpeaking__07f91",
+                     "children": [
+                      {
+                       "name": "Bruno"
+                      }
+                     ]
+                    },
+                    {
+                     "cls": "chipletParent__394db",
+                     "children": [
+                      {
+                       "name": "Tag do servidor: ABC"
+                      }
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "cls": "hiddenVisually_b18fe2",
+                   "children": [
+                    {
+                     "name": "Silenciado(a)"
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              },
+              {
+               "cls": "draggable__55bab",
+               "children": [
+                {
+                 "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+                 "children": [
+                  {
+                   "cls": "focusTarget__54e4b",
+                   "name": "Eu"
+                  },
+                  {
+                   "cls": "container__394db",
+                   "children": [
+                    {
+                     "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91",
+                     "children": [
+                      {
+                       "name": "Eu"
+                      }
+                     ]
+                    },
+                    {
+                     "cls": "chipletParent__394db",
+                     "children": [
+                      {
+                       "name": "Tag do servidor: ABC"
+                      }
+                     ]
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "cls": "container__37e49 containerRtcOpened__37e49",
+         "children": [
+          {
+           "cls": "accountPopoutButtonWrapper__37e49",
+           "children": [
+            {
+             "cls": "accountPopoutButton__37e49",
+             "name": "Gerenciar perfil e status"
+            },
+            {
+             "cls": "text-md/medium_cf4812 title_b6c092",
+             "children": [
+              {
+               "name": "Eu"
+              }
+             ]
+            },
+            {
+             "cls": "text-xs/medium_cf4812 subtext__339d0",
+             "children": [
+              {
+               "name": "eu_login"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "cls": "membersWrap_c8ffbb",
+         "name": "Lista de membros",
+         "children": [
+          {
+           "cls": "member__5d473 member_c8ffbb",
+           "name": "AnaEm voz (Reuniao)",
+           "children": [
+            {
+             "cls": "username__5d473",
+             "children": [
+              {
+               "name": "Ana"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    null
+   ],
+   "output": [
+    {
+     "app": "Discord",
+     "event": "speaker-active",
+     "name": "Ana",
+     "speaking": true
+    },
+    {
+     "app": "Discord",
+     "event": "speaker-active",
+     "name": "Bruno",
+     "speaking": true
+    },
+    {
+     "app": "Discord",
+     "event": "speaker-active",
+     "name": "Ana",
+     "speaking": false
+    },
+    {
+     "app": "Discord",
+     "event": "speaker-active",
+     "name": "Bruno",
+     "speaking": false
+    }
+   ]
+  }
+ ],
+ "snapshot": {
+  "input": {
+   "cls": "Chrome_WidgetWin_1",
+   "name": "#geral | Servidor - Discord",
+   "children": [
+    {
+     "name": "#geral | Servidor",
+     "children": [
+      {
+       "cls": "scroller__629e4 thin_d125d2",
+       "children": [
+        {
+         "cls": "containerDefault_c69b6d",
+         "name": "VozAbrir chatAnaBrunoEu",
+         "children": [
+          {
+           "cls": "link__2ea32",
+           "name": "Reuniao (canal de voz), Ana, Bruno, Eu"
+          },
+          {
+           "cls": "list_c3cd7d list__07f91 listDefault__07f91",
+           "children": [
+            {
+             "cls": "draggable__55bab",
+             "children": [
+              {
+               "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+               "children": [
+                {
+                 "cls": "focusTarget__54e4b",
+                 "name": "Ana"
+                },
+                {
+                 "cls": "container__394db",
+                 "children": [
+                  {
+                   "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91 usernameSpeaking__07f91",
+                   "children": [
+                    {
+                     "name": "Ana"
+                    }
+                   ]
+                  },
+                  {
+                   "cls": "chipletParent__394db",
+                   "children": [
+                    {
+                     "name": "Tag do servidor: ABC"
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "cls": "draggable__55bab",
+             "children": [
+              {
+               "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+               "children": [
+                {
+                 "cls": "focusTarget__54e4b",
+                 "name": "Bruno, Silenciado(a)"
+                },
+                {
+                 "cls": "container__394db",
+                 "children": [
+                  {
+                   "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91",
+                   "children": [
+                    {
+                     "name": "Bruno"
+                    }
+                   ]
+                  },
+                  {
+                   "cls": "chipletParent__394db",
+                   "children": [
+                    {
+                     "name": "Tag do servidor: ABC"
+                    }
+                   ]
+                  }
+                 ]
+                },
+                {
+                 "cls": "hiddenVisually_b18fe2",
+                 "children": [
+                  {
+                   "name": "Silenciado(a)"
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "cls": "draggable__55bab",
+             "children": [
+              {
+               "cls": "voiceUser__07f91 clickable__07f91 userSmall__07f91",
+               "children": [
+                {
+                 "cls": "focusTarget__54e4b",
+                 "name": "Eu"
+                },
+                {
+                 "cls": "container__394db",
+                 "children": [
+                  {
+                   "cls": "usernameFont__07f91 text-sm/medium__07f91 username__07f91",
+                   "children": [
+                    {
+                     "name": "Eu"
+                    }
+                   ]
+                  },
+                  {
+                   "cls": "chipletParent__394db",
+                   "children": [
+                    {
+                     "name": "Tag do servidor: ABC"
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "cls": "container__37e49 containerRtcOpened__37e49",
+       "children": [
+        {
+         "cls": "accountPopoutButtonWrapper__37e49",
+         "children": [
+          {
+           "cls": "accountPopoutButton__37e49",
+           "name": "Gerenciar perfil e status"
+          },
+          {
+           "cls": "text-md/medium_cf4812 title_b6c092",
+           "children": [
+            {
+             "name": "Eu"
+            }
+           ]
+          },
+          {
+           "cls": "text-xs/medium_cf4812 subtext__339d0",
+           "children": [
+            {
+             "name": "eu_login"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "cls": "membersWrap_c8ffbb",
+       "name": "Lista de membros",
+       "children": [
+        {
+         "cls": "member__5d473 member_c8ffbb",
+         "name": "AnaEm voz (Reuniao)",
+         "children": [
+          {
+           "cls": "username__5d473",
+           "children": [
+            {
+             "name": "Ana"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "output": {
+   "members": {
+    "Ana": true,
+    "Bruno": false,
+    "Eu": false
+   },
+   "self": "Eu"
+  }
+ }
+}

@@ -295,7 +295,7 @@ Meetings of 1 to 2 hours are summarized in ~15-minute parts and then combined in
 
 ### Identify participants (beta)
 
-In **Settings › Participants**, Rice tells the voices on the computer audio apart as Person 1, Person 2… Click the label to name them (applies to the whole meeting; calendar attendees show up as shortcuts and the AI can suggest from context, always as a suggestion). Everything runs on your Mac: it downloads a 27 MB model the first time and uses about 100 MB of memory while recording. The names are used in the notes, the chat, the search and the exported PDF; the transcript file keeps "Person N".
+In **Settings › Participants**, Rice tells the voices on the computer audio apart as Person 1, Person 2… Click the label to name them (applies to the whole meeting; calendar attendees show up as shortcuts and the AI can suggest from context, always as a suggestion). Everything runs on your Mac: it downloads a 27 MB model the first time and uses about 100 MB of memory while recording. The names are used in the notes, the chat, the search and the exported PDF; the transcript file keeps "Person N". On Windows, during a Discord desktop call in a server voice channel, Rice reads who is speaking from Discord's accessibility tree (UI Automation) and names Person N with that Discord name automatically (you can still rename it). Only names are read, only while recording a Discord call, and they are kept only in the meeting's names list.
 
 ![Naming a participant](docs/images/en/23-speakers.webp)
 

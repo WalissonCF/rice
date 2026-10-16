@@ -35,6 +35,8 @@ export class DetectorClient extends EventEmitter {
   private readonly releaseTimers = new Map<string, NodeJS.Timeout>();
   private readonly announced = new Set<string>();
   private input: InputDeviceInfo | null = null;
+  /** App cujos falantes o detector está lendo (`watch-speakers`, só Windows); reenviado se o detector reinicia. */
+  private speakersApp: string | null = null;
   private pending: ((e: CalendarEvent | null) => void) | null = null;
   private inflight: Promise<CalendarEvent | null> | null = null;
   private restartTimer: NodeJS.Timeout | null = null;
@@ -63,6 +65,7 @@ export class DetectorClient extends EventEmitter {
     this.child = child;
     child.stdin.on('error', () => {});
     child.stderr.resume();
+    if (this.speakersApp) child.stdin.write(`${JSON.stringify({ cmd: 'watch-speakers', app: this.speakersApp })}\n`);
     child.on('error', () => {});
     const rl = createInterface({ input: child.stdout, crlfDelay: Infinity });
     rl.on('line', (text) => {
@@ -174,6 +177,10 @@ export class DetectorClient extends EventEmitter {
         this.emit('default-input', this.input);
         break;
       }
+      case 'speaker-active':
+        // só Windows (Discord): o nome de quem começou/parou de falar na chamada
+        if (typeof line.name === 'string' && line.name && typeof line.speaking === 'boolean') this.emit('speaker-active', { app, name: line.name, speaking: line.speaking });
+        break;
       case 'calendar-changed':
         this.emit('calendar-changed');
         break;
@@ -294,6 +301,13 @@ export class DetectorClient extends EventEmitter {
   /** Pede ao detector (Mac) para repetir o `default-input`. */
   requestCurrentInput(): void {
     this.child?.stdin.write('{"cmd":"current-input"}\n');
+  }
+
+  /** Começa (app) ou para (null) de ler quem fala na chamada; eventos `speaker-active`. Só o detector do Windows conhece o comando. */
+  watchSpeakers(app: string | null): void {
+    if (app === this.speakersApp) return;
+    this.speakersApp = app;
+    this.child?.stdin.write(app ? `${JSON.stringify({ cmd: 'watch-speakers', app })}\n` : '{"cmd":"stop-speakers"}\n');
   }
 
   requestCalendarAccess(): void {

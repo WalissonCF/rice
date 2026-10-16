@@ -15,6 +15,7 @@
 #include "../common/framing.hpp"
 #include "../common/json.hpp"
 #include "../detector/app_matcher.hpp"
+#include "../detector/discord_voice.hpp"
 #include "../detector/mic_monitor.hpp"
 #include "../detector/mic_watcher.hpp"
 #include "../detector/window_list.hpp"
@@ -215,6 +216,25 @@ TEST(mic_watcher_gera_os_mesmos_eventos_do_swift) {
       for (const auto& id : step.items()) ids.push_back(id.str());
       watcher.tick(ids);
     }
+    const auto& expected = item.get("output")->items();
+    CHECK_EQ(cap.lines.size(), expected.size());
+    for (size_t i = 0; i < expected.size() && i < cap.lines.size(); i++) CHECK_EQ(cap.lines[i], expected[i].dump());
+  }
+}
+
+TEST(discord_quem_fala_vira_speaker_active_sem_a_propria_conta) {
+  auto doc = json::parse(readFixtureText("protocol/discord-voice.json"));
+  CHECK(doc.has_value());
+  if (!doc) return;
+  const json::Value* snap = doc->get("snapshot");
+  VoiceSnapshot s = discordVoiceSnapshot(uiNodeFromJson(*snap->get("input")));
+  CHECK_EQ(s.self, snap->get("output")->getString("self"));
+  CHECK_EQ(s.members.size(), snap->get("output")->get("members")->members().size());
+  for (const auto& [name, speaking] : snap->get("output")->get("members")->members()) CHECK_EQ(s.members[name], speaking.boolean());
+  for (const auto& item : doc->get("simulateSpeakers")->items()) {
+    Capture cap;
+    SpeakerWatcher watcher(cap.emitter);
+    for (const auto& tree : item.get("input")->items()) watcher.tick(discordVoiceSnapshot(uiNodeFromJson(tree)));
     const auto& expected = item.get("output")->items();
     CHECK_EQ(cap.lines.size(), expected.size());
     for (size_t i = 0; i < expected.size() && i < cap.lines.size(); i++) CHECK_EQ(cap.lines[i], expected[i].dump());
