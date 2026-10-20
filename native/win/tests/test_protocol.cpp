@@ -6,6 +6,7 @@
 #include <thread>
 
 #include "../audio/echo_canceller.hpp"
+#include "../audio/exclude_target.hpp"
 #include "../audio/mic_device.hpp"
 #include "../audio/output_classify.hpp"
 #include "../audio/recorder.hpp"
@@ -650,4 +651,34 @@ TEST(recorder_reinicia_o_sistema_uma_vez_e_depois_fica_fatal) {
   CHECK(all.find("captura do sistema parou, reiniciando") != std::string::npos);
   CHECK_EQ(platform.systemOpens(), 2);
   CHECK(all.find("\"fatal\":true") == std::string::npos);
+}
+
+TEST(exclude_pid_sobe_ate_a_raiz_do_mesmo_executavel) {
+  std::vector<ProcessEntry> procs = {
+      {4, 0, "System"}, {100, 4, "explorer.exe"}, {200, 100, "Spotify.exe"}, {201, 200, "spotify.exe"}, {202, 201, "Spotify.exe"}, {300, 100, "Rice.exe"}};
+  CHECK_EQ(excludeTreeRoot({202, 300}, procs), 200L);  // vale o primeiro; filho do Spotify vira a raiz
+  CHECK_EQ(excludeTreeRoot({300}, procs), 300L);
+  CHECK_EQ(excludeTreeRoot({999}, procs), 999L);  // fora da lista: usa como veio
+  CHECK_EQ(excludeTreeRoot({}, procs), 0L);
+  std::vector<ProcessEntry> loop = {{10, 11, "a.exe"}, {11, 10, "a.exe"}};
+  CHECK(excludeTreeRoot({10}, loop) != 0);  // ciclo não trava
+}
+
+TEST(recorder_repassa_todos_os_exclude_pid_na_ordem) {
+  MemoryFrameSink sink;
+  Capture cap;
+  SimulatedPlatform::Script script;
+  script.realTime = false;
+  script.micBlocks = 5;
+  SimulatedPlatform platform(script);
+  RecorderOptions opt;
+  opt.echoCancellation = false;
+  opt.excludePids = {9120, 4242};  // Spotify antes do Rice: o Windows usa o primeiro
+  {
+    Recorder rec(platform, sink, cap.emitter, opt);
+    rec.start();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    rec.stop();
+  }
+  CHECK(platform.excludedPids() == std::vector<long>({9120, 4242}));
 }

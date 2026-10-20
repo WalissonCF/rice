@@ -16,14 +16,14 @@ Convenções válidas para os dois:
 
 ## rice-audio
 
-Um processo = uma gravação. O main (`AudioCapture`) lança `rice-audio --exclude-pid <pid do Electron>` com
+Um processo = uma gravação. O main (`AudioCapture`) lança `rice-audio [--exclude-pid <pid do Spotify>…] --exclude-pid <pid do Electron>` com
 `stdio: pipe`, escreve `{"cmd":"start"}` e, no fim, `{"cmd":"stop"}` + fecha o stdin.
 
 ### Argumentos
 
 | Argumento | Efeito |
 | --- | --- |
-| `--exclude-pid N` (repetível) | Processos cujo áudio não entra no `sys` (o Rice se exclui). Windows: aceito; ver nota em `native/win/README.md`. |
+| `--exclude-pid N` (repetível) | Processos cujo áudio não entra no `sys` (o Rice se exclui; players de música abertos no começo da gravação, hoje o Spotify, vêm antes). Mac: todos (no tap; o fallback ScreenCaptureKit não exclui). **Windows: só o primeiro**, com a árvore inteira dele (sobe até o pai de mesmo executável), pelo loopback por processo (Windows 10 2004+); se a ativação falhar, captura a saída inteira. Ver `native/win/README.md`. |
 | `--no-aec` | Não cancela eco no microfone. Evento `aec {enabled:false, reason:"desligado por --no-aec"}`. |
 | `--mic-device ID` (ou env `RICE_MIC_DEVICE`) | **Só Windows, opcional.** Abre o endpoint de captura `ID` (o `id` de `--list-inputs`) em vez do padrão do Windows. Sem o argumento: padrão (`eConsole`), seguindo as trocas. Se o endpoint sumir, volta ao padrão; se voltar, retoma (evento `mic-device`). O Mac não tem o argumento (usa a entrada padrão do sistema) e o ignora. |
 | `--mic-device UID` (ou env `RICE_MIC_DEVICE`) — **Mac** | Abre a entrada do CoreAudio com esse UID (`kAudioOutputUnitProperty_CurrentDevice` no `inputNode`, antes de iniciar) em vez da padrão do macOS. Sem ele, segue a padrão como sempre. UID que sumiu (fone desconectado): cai no padrão e o evento `mic-device` diz `reason: "preferred-missing"`. Só o dispositivo da entrada muda; o resto da captura (AEC, sistema, chunkers) é o mesmo. |

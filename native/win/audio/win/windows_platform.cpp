@@ -9,11 +9,14 @@
 #include <windows.h>
 
 #include <audioclient.h>
+#include <audioclientactivationparams.h>
 #include <mmdeviceapi.h>
+#include <tlhelp32.h>
 #include <propkeydef.h>  // DEFINE_PROPERTYKEY: tem de vir antes de functiondiscoverykeys_devpkey.h
 #include <propsys.h>
 #include <functiondiscoverykeys_devpkey.h>
 #include <wrl/client.h>
+#include <wrl/implements.h>
 
 #include <atomic>
 #include <condition_variable>
@@ -26,6 +29,7 @@
 #include <thread>
 #include <vector>
 
+#include "../exclude_target.hpp"
 #include "../mic_device.hpp"
 #include "../output_classify.hpp"
 
@@ -152,6 +156,32 @@ bool toFloat(const BYTE* data, UINT32 frames, const WAVEFORMATEX* fmt, bool sile
   return true;
 }
 
+/// Processos em execução (pid, pai, executável) para achar a raiz da árvore a excluir.
+std::vector<ProcessEntry> runningProcesses() {
+  std::vector<ProcessEntry> out;
+  HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+  if (snap == INVALID_HANDLE_VALUE) return out;
+  PROCESSENTRY32W e = {};
+  e.dwSize = sizeof e;
+  for (BOOL ok = Process32FirstW(snap, &e); ok; ok = Process32NextW(snap, &e)) {
+    out.push_back({static_cast<long>(e.th32ProcessID), static_cast<long>(e.th32ParentProcessID), toUtf8(e.szExeFile)});
+  }
+  CloseHandle(snap);
+  return out;
+}
+
+/// Completa o ActivateAudioInterfaceAsync (o Windows chama numa thread dele; precisa ser ágil, daí o FtmBase).
+class ActivationHandler final : public Microsoft::WRL::RuntimeClass<Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::ClassicCom>, Microsoft::WRL::FtmBase, IActivateAudioInterfaceCompletionHandler> {
+ public:
+  ActivationHandler() : done(CreateEventW(nullptr, TRUE, FALSE, nullptr)) {}
+  ~ActivationHandler() override { if (done) CloseHandle(done); }
+  STDMETHOD(ActivateCompleted)(IActivateAudioInterfaceAsyncOperation*) override {
+    SetEvent(done);
+    return S_OK;
+  }
+  HANDLE done;
+};
+
 // ---- Notificações de dispositivo -------------------------------------------------------------------------------
 
 /// Recebe OnDefaultDeviceChanged numa thread do COM e repassa a uma thread própria (nada pesado dentro do callback).
@@ -256,6 +286,9 @@ class WasapiCapture final : public CaptureHandle {
 
   ~WasapiCapture() override { stop(); }
 
+  /// Só para o loopback: árvore de processos cujo áudio não entra (0 = loopback da saída inteira).
+  void excludeProcessTree(DWORD pid) { excludePid_ = pid; }
+
   /// Só para o microfone: endpoint escolhido (vazio = padrão) e quem recebe cada mudança do dispositivo em uso.
   void configureMic(std::string preferred, std::function<void(const MicDeviceInfo&)> onDevice) {
     preferred_ = std::move(preferred);
@@ -299,6 +332,14 @@ class WasapiCapture final : public CaptureHandle {
 
   bool open(std::string& error, CaptureFailure& failure) {
     close();
+    if (kind_ == Kind::Loopback && excludePid_ != 0) {
+      std::string why;
+      if (openProcessLoopback(why)) return true;
+      close();
+      // linha que não é JSON: o main ignora, mas fica no stderr para diagnóstico
+      if (!warnedFallback_) std::fprintf(stderr, "loopback por processo indisponível (%s); capturando a saída inteira\n", why.c_str());
+      warnedFallback_ = true;
+    }
     ComPtr<IMMDeviceEnumerator> enumerator;
     HRESULT rc = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, IID_PPV_ARGS(&enumerator));
     if (FAILED(rc)) { error = "MMDeviceEnumerator " + hr(rc); return false; }
@@ -346,6 +387,49 @@ class WasapiCapture final : public CaptureHandle {
     rc = client_->GetService(__uuidof(IAudioCaptureClient), reinterpret_cast<void**>(capture_.GetAddressOf()));
     if (FAILED(rc)) { error = "GetService(IAudioCaptureClient) " + hr(rc); return false; }
     if (loopback && !openSilentRender()) return false;
+    rc = client_->Start();
+    if (FAILED(rc)) { error = "IAudioClient::Start " + hr(rc); return false; }
+    return true;
+  }
+
+  /// Loopback por processo (Windows 10 2004+): tudo o que toca, menos a árvore de `excludePid_`. Não depende do
+  /// dispositivo de saída (segue o padrão sozinho). Em falha, o chamador volta ao loopback da saída inteira.
+  bool openProcessLoopback(std::string& error) {
+    AUDIOCLIENT_ACTIVATION_PARAMS params = {};
+    params.ActivationType = AUDIOCLIENT_ACTIVATION_TYPE_PROCESS_LOOPBACK;
+    params.ProcessLoopbackParams.TargetProcessId = excludePid_;
+    params.ProcessLoopbackParams.ProcessLoopbackMode = PROCESS_LOOPBACK_MODE_EXCLUDE_TARGET_PROCESS_TREE;
+    PROPVARIANT prop = {};
+    prop.vt = VT_BLOB;
+    prop.blob.cbSize = sizeof params;
+    prop.blob.pBlobData = reinterpret_cast<BYTE*>(&params);
+    auto handler = Microsoft::WRL::Make<ActivationHandler>();
+    ComPtr<IActivateAudioInterfaceAsyncOperation> op;
+    HRESULT rc = ActivateAudioInterfaceAsync(VIRTUAL_AUDIO_DEVICE_PROCESS_LOOPBACK, __uuidof(IAudioClient), &prop, handler.Get(), &op);
+    if (FAILED(rc)) { error = "ActivateAudioInterfaceAsync " + hr(rc); return false; }
+    if (WaitForSingleObject(handler->done, 5000) != WAIT_OBJECT_0) { error = "ActivateAudioInterfaceAsync: tempo esgotado"; return false; }
+    HRESULT activated = E_FAIL;
+    ComPtr<IUnknown> unknown;
+    rc = op->GetActivateResult(&activated, &unknown);
+    if (FAILED(rc) || FAILED(activated)) { error = "GetActivateResult " + hr(FAILED(rc) ? rc : activated); return false; }
+    if (FAILED(unknown.As(&client_))) { error = "IAudioClient (loopback por processo)"; return false; }
+    // Sem GetMixFormat aqui (E_NOTIMPL): pede PCM 16 bits 48 kHz estéreo e o Windows converte.
+    WAVEFORMATEX fmt = {};
+    fmt.wFormatTag = WAVE_FORMAT_PCM;
+    fmt.nChannels = 2;
+    fmt.nSamplesPerSec = 48000;
+    fmt.wBitsPerSample = 16;
+    fmt.nBlockAlign = fmt.nChannels * fmt.wBitsPerSample / 8;
+    fmt.nAvgBytesPerSec = fmt.nSamplesPerSec * fmt.nBlockAlign;
+    format_.assign(reinterpret_cast<BYTE*>(&fmt), reinterpret_cast<BYTE*>(&fmt) + sizeof fmt);
+    // EVENTCALLBACK é exigido por esse modo; o laço continua por polling (o evento só existe para o Initialize aceitar).
+    rc = client_->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK | AUDCLNT_STREAMFLAGS_EVENTCALLBACK | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM, 2'000'000, 0, &fmt, nullptr);
+    if (FAILED(rc)) { error = "IAudioClient::Initialize " + hr(rc); return false; }
+    rc = client_->SetEventHandle(readyEvent());
+    if (FAILED(rc)) { error = "SetEventHandle " + hr(rc); return false; }
+    rc = client_->GetService(__uuidof(IAudioCaptureClient), reinterpret_cast<void**>(capture_.GetAddressOf()));
+    if (FAILED(rc)) { error = "GetService(IAudioCaptureClient) " + hr(rc); return false; }
+    openSilentRender();
     rc = client_->Start();
     if (FAILED(rc)) { error = "IAudioClient::Start " + hr(rc); return false; }
     return true;
@@ -514,6 +598,8 @@ class WasapiCapture final : public CaptureHandle {
   std::vector<BYTE> format_;
   std::vector<float> scratch_;
   bool failedFormat_ = false;
+  DWORD excludePid_ = 0;
+  bool warnedFallback_ = false;
 };
 
 // ---- Plataforma ---------------------------------------------------------------------------------------------------
@@ -543,11 +629,11 @@ class WindowsPlatform final : public Platform {
     return inputs;
   }
 
-  std::unique_ptr<CaptureHandle> startSystem(BlockCallback onBlock, std::function<void(std::string)> onStopped, const std::vector<long>&, std::string& error) override {
-    // --exclude-pid: o Rice quase não toca áudio; excluir por processo exigiria o loopback por processo
-    // (ActivateAudioInterfaceAsync, Windows 10 2004+). Fica para a fase 2.
+  std::unique_ptr<CaptureHandle> startSystem(BlockCallback onBlock, std::function<void(std::string)> onStopped, const std::vector<long>& excludePids, std::string& error) override {
+    // --exclude-pid: o loopback por processo exclui UMA árvore (a do primeiro pid; ver exclude_target.hpp).
     CaptureFailure failure = CaptureFailure::None;
     auto capture = std::make_unique<WasapiCapture>(WasapiCapture::Kind::Loopback, std::move(onBlock), nullptr, std::move(onStopped));
+    if (!excludePids.empty()) capture->excludeProcessTree(static_cast<DWORD>(excludeTreeRoot(excludePids, runningProcesses())));
     if (!capture->start(error, failure)) return nullptr;
     return capture;
   }

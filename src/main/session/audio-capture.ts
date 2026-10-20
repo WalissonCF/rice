@@ -11,14 +11,16 @@ export class AudioCapture extends EventEmitter {
   private stopping: Promise<void> | null = null;
   private expectedExit = false;
 
-  constructor(private readonly binary: string) {
+  /** `excludePids`: além do próprio Rice (players de música). Vão antes do Rice: o Windows só exclui a árvore do primeiro. */
+  constructor(private readonly binary: string, private readonly excludePids: readonly number[] = []) {
     super();
   }
 
   start(): void {
     if (this.child) throw new Error('AudioCapture já iniciado');
-    // O tap do áudio do sistema ignora o próprio Rice (o rice-audio já se exclui).
-    const child = spawn(this.binary, ['--exclude-pid', String(process.pid)], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
+    // O tap do áudio do sistema ignora o próprio Rice (o rice-audio já se exclui) e os players de música.
+    const args = [...this.excludePids, process.pid].flatMap((pid) => ['--exclude-pid', String(pid)]);
+    const child = spawn(this.binary, args, { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
     this.child = child;
     const decoder = new FrameDecoder();
     child.stdout.on('data', (chunk: Buffer) => {

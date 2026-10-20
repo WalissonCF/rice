@@ -43,6 +43,8 @@ class SimulatedPlatform : public Platform {
   int sleepBlocks() const { return sleepBlocks_.load(); }
   int sleepReleases() const { return sleepReleases_.load(); }
   int systemOpens() const { return systemOpens_.load(); }
+  /// O que o último startSystem recebeu de --exclude-pid (ler depois do stop).
+  std::vector<long> excludedPids() const { return excludedPids_; }
 
  private:
   Script script_;
@@ -51,6 +53,7 @@ class SimulatedPlatform : public Platform {
   std::atomic<int> sleepBlocks_{0};
   std::atomic<int> sleepReleases_{0};
   std::atomic<int> systemOpens_{0};
+  std::vector<long> excludedPids_;
   std::atomic<bool> headphones_{false};
   void reevaluateMic();
   std::vector<InputDevice> inputs_ = {{"sim-default", "Microfone simulado", true, "active"}};

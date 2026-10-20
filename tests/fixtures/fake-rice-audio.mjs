@@ -24,6 +24,7 @@ createInterface({ input: process.stdin }).on('line', (line) => {
   const cmd = parsed.cmd;
   if (cmd === 'mic-device') ev({ event: 'mic-device', id: parsed.id || 'default-uid', name: parsed.id ? `Mic ${parsed.id}` : 'Padrão', isDefault: !parsed.id, chosen: Boolean(parsed.id), reason: 'switched' });
   if (cmd === 'start') {
+    if (mode === 'echo-args') ev({ event: 'args', argv: process.argv.slice(2) });
     if (mode === 'garbage-stderr') process.stderr.write('AUHAL: some CoreAudio noise\n');
     if (mode === 'bad-frame') {
       process.stdout.write(Buffer.from([9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]));

@@ -121,7 +121,8 @@ std::unique_ptr<CaptureHandle> SimulatedPlatform::startMic(BlockCallback onBlock
   return std::make_unique<ToneThread>(440.0, std::move(onBlock), script_.realTime, script_.micBlocks, nullptr);
 }
 
-std::unique_ptr<CaptureHandle> SimulatedPlatform::startSystem(BlockCallback onBlock, std::function<void(std::string)> onStopped, const std::vector<long>&, std::string& error) {
+std::unique_ptr<CaptureHandle> SimulatedPlatform::startSystem(BlockCallback onBlock, std::function<void(std::string)> onStopped, const std::vector<long>& excludePids, std::string& error) {
+  excludedPids_ = excludePids;
   if (script_.systemFails) {
     error = "dispositivo de saída indisponível";
     return nullptr;

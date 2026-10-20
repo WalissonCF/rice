@@ -21,6 +21,7 @@ import { canDeleteMeeting, deleteMeetingDir } from './delete-meeting';
 import { AsrService } from '../session/asr-service';
 import { CoverTracker, partialsWanted } from '../asr/partials-gate';
 import { AudioCapture } from '../session/audio-capture';
+import { musicPlayerPids } from '../platform/music-players';
 import { DetectorClient } from '../session/detector-client';
 import { MeetingSession, type SessionState } from '../session/meeting-session';
 import { listVersions, readVersion, restoreVersion } from '../store/notes-versions';
@@ -800,6 +801,7 @@ type MicNow = { dir: string; name: string; short: string; isDefault: boolean; ch
 let micNow: MicNow | null = null;
 /** Mac: o que a escolha automática decidiu para a gravação atual, e se o helper já informou o microfone aberto. */
 let micPick: MicPick | null = null;
+let musicPids: number[] = []; // Spotify aberto no começo da gravação: o áudio dele não entra no `sys`
 let micFromHelper = false;
 const muteMonitor = new MicMuteMonitor();
 let muteBusy = false;
@@ -910,8 +912,10 @@ function setupSession(runner: AiRunner): AsrService {
   asrService = asr;
   const s = new MeetingSession({
     root: async () => (await loadSettings()).root,
-    createCapture: () => new AudioCapture(riceAudioBinary()),
-    prepareCapture: prepareMic,
+    createCapture: () => new AudioCapture(riceAudioBinary(), musicPids),
+    prepareCapture: async () => {
+      await Promise.all([prepareMic(), musicPlayerPids().then((pids) => { musicPids = pids; })]);
+    },
     createPipeline: (language, vocabulary, speakers) => asr.createPipeline(language, vocabulary, speakers),
     vocabulary: whisperVocabularyFor,
     speakers: createSpeakerIdentifier,

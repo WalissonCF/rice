@@ -37,7 +37,7 @@ add_library(rice_common STATIC common/json.cpp common/events.cpp common/framing.
 
 add_library(rice_audio_core STATIC
   audio/echo_canceller.cpp audio/recorder.cpp audio/selftests.cpp audio/sinks.cpp
-  audio/simulated_platform.cpp audio/output_classify.cpp audio/mic_device.cpp)
+  audio/simulated_platform.cpp audio/output_classify.cpp audio/mic_device.cpp audio/exclude_target.cpp)
 target_link_libraries(rice_audio_core PUBLIC rice_common Threads::Threads)
 
 add_library(rice_detector_core STATIC detector/app_matcher.cpp detector/mic_watcher.cpp detector/mic_monitor.cpp detector/window_list.cpp)
@@ -75,7 +75,7 @@ target_link_libraries(rice-audio PRIVATE rice_audio_core)
 add_executable(rice-detector ${DETECTOR_SOURCES})
 target_link_libraries(rice-detector PRIVATE rice_detector_core)
 if(WIN32)
-  target_link_libraries(rice-audio PRIVATE ole32 uuid propsys winmm)  # winmm: timeGetTime do WebRTC
+  target_link_libraries(rice-audio PRIVATE ole32 uuid propsys winmm mmdevapi)  # winmm: timeGetTime do WebRTC; mmdevapi: ActivateAudioInterfaceAsync
   target_link_libraries(rice-detector PRIVATE advapi32 user32 dwmapi)
 endif()
 

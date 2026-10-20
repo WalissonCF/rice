@@ -15,6 +15,6 @@ if [ -n "${RICE_APM_DIR:-}" ]; then
   [ "$(uname)" = Darwin ] && aec+=(-framework CoreFoundation -framework Foundation)
 fi
 "$cxx" -std=c++17 -O1 -Wall -Wextra -Wno-unused-parameter -pthread \
-  "$here"/common/*.cpp "$here"/audio/{echo_canceller,recorder,selftests,sinks,simulated_platform,output_classify,mic_device}.cpp \
+  "$here"/common/*.cpp "$here"/audio/{echo_canceller,recorder,selftests,sinks,simulated_platform,output_classify,mic_device,exclude_target}.cpp \
   "$here"/detector/{app_matcher,mic_watcher,mic_monitor,window_list}.cpp "$here"/tests/*.cpp ${aec[@]+"${aec[@]}"} -o "$out/rice_tests"
 RICE_FIXTURES="$here/../../tests/fixtures" "$out/rice_tests"

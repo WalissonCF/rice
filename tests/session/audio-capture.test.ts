@@ -104,3 +104,14 @@ test('trocar o microfone várias vezes não acumula ouvintes (nem no capture nem
   expect(c.eventNames().map((n) => c.listenerCount(n))).toEqual(listeners);
   await c.stop();
 });
+
+test('players de música vão como --exclude-pid antes do Rice (o Windows só exclui o primeiro)', async () => {
+  process.env.FAKE_AUDIO_MODE = 'echo-args';
+  const c = new AudioCapture(FAKE, [4321, 4322]);
+  live.push(c);
+  const events: Array<Record<string, unknown>> = [];
+  c.on('event', (e: Record<string, unknown>) => events.push(e));
+  c.start();
+  await until(() => events.some((e) => e.event === 'args'));
+  expect(events.find((e) => e.event === 'args')!.argv).toEqual(['--exclude-pid', '4321', '--exclude-pid', '4322', '--exclude-pid', String(process.pid)]);
+});

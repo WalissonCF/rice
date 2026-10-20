@@ -124,8 +124,11 @@ sem sentido (os três modelos erram muito nela); precisa de áudio real no PC de
 
 ## Limitações conhecidas
 
-- `--exclude-pid` é aceito e ignorado: o loopback captura a saída inteira. Excluir o Rice exigiria o loopback por processo
-  (`ActivateAudioInterfaceAsync`, Windows 10 2004+); fica para a fase 2.
+- `--exclude-pid`: loopback por processo em modo EXCLUDE (`ActivateAudioInterfaceAsync`, Windows 10 2004+), que aceita **uma** árvore
+  de processos por fluxo. Vale o primeiro pid (o main põe o Spotify antes do Rice), subindo até o pai de mesmo executável. Com o
+  Spotify aberto o próprio Rice volta a entrar no `sys` (ele quase não toca áudio). Se a ativação falhar (Windows antigo), uma linha
+  não-JSON no stderr avisa e a captura cai no loopback da saída inteira. O áudio excluído também sai da referência do AEC: com
+  alto-falante, a música que vaza para o microfone não é cancelada.
 - O loopback abre também um fluxo de silêncio na saída padrão, para o Windows continuar entregando pacotes quando nada toca.
 - Permissão de microfone: se "Permitir que aplicativos da área de trabalho acessem o microfone" estiver desligado, o Windows
   entrega silêncio sem erro; o helper lê a chave `ConsentStore\microphone` e avisa com `permissão de microfone negada`.

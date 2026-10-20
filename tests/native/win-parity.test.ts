@@ -126,6 +126,21 @@ describe('rice-audio (C++) contra o Swift', () => {
       ts.slice(1).forEach((t, i) => expect(t - ts[i]!).toBe(100));
     }
   });
+
+  test.skipIf(skip)('players de música como --exclude-pid extras: o helper aceita e grava as duas fontes', async () => {
+    process.env.RICE_AUDIO_SIMULATE = '1';
+    const capture = new AudioCapture(audio, [9120, 9188]); // como o main passa o Spotify
+    const frames: AudioFrame[] = [];
+    capture.on('frame', (f: AudioFrame) => frames.push(f));
+    const exit = new Promise<{ code: number | null; expected: boolean }>((res) => capture.once('exit', res));
+    capture.start();
+    await new Promise((r) => setTimeout(r, 800));
+    await capture.stop();
+    delete process.env.RICE_AUDIO_SIMULATE;
+    expect(await exit).toMatchObject({ code: 0, expected: true });
+    expect(frames.some((f) => f.source === 'sys')).toBe(true);
+    expect(frames.some((f) => f.source === 'mic')).toBe(true);
+  });
 });
 
 describe('rice-detector (C++) contra o Swift', () => {
